@@ -1,0 +1,6 @@
+node_modules/
+.env
+chat_logs.txt
+.DS_Store
+prompts.txt
+dataico-design-system/

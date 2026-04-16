@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dataico | Asesor Inteligente</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="bg-[#F9FAFB] h-screen flex flex-col font-satoshi overflow-hidden">
+
+    <header class="bg-coral px-6 py-4 flex items-center justify-between shrink-0 shadow-md z-20">
+        <div class="flex items-center gap-3">
+            <img src="Dataico_logo.png" alt="Dataico" class="h-8 object-contain">
+        </div>
+        <span class="bg-white text-coral text-xs font-bold px-3 py-1 rounded-full shadow-sm">Asesor AI</span>
+    </header>
+
+    <div class="flex-1 overflow-hidden flex w-full max-w-6xl mx-auto">
+
+        <div class="flex-1 flex flex-col w-full border-r border-gray-100 bg-white relative">
+            <main id="chat-container" class="flex-1 overflow-y-auto p-4 md:p-8 flex flex-col gap-6">
+            </main>
+
+            <div class="bg-white border-t border-gray-200 p-4 shrink-0 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-10">
+                <div class="relative flex gap-2 w-full">
+                    <input type="text" id="user-input" placeholder="Escribe tu respuesta aquí..."
+                        class="w-full bg-[#F9FAFB] border border-gray-200 rounded-2xl pl-5 pr-4 py-4 focus:outline-none focus:border-coral focus:ring-1 focus:ring-coral transition-all text-gray-700">
+                    <button id="send-btn"
+                        class="bg-gray-900 hover:bg-gray-800 text-white px-5 rounded-xl transition-colors flex items-center justify-center shrink-0">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="22" y1="2" x2="11" y2="13"></line>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <aside class="hidden md:flex w-80 p-8 flex-col justify-start bg-[#F9FAFB] overflow-y-auto">
+            <div id="dynamic-banner"
+                class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 sticky top-0 transition-opacity duration-300">
+                <div
+                    class="w-12 h-12 rounded-full bg-[#fdf2f2] flex items-center justify-center mb-5 text-2xl shadow-sm border border-coral/10">
+                    🏢
+                </div>
+                <h3 class="font-bold text-gray-900 text-lg mb-3 leading-tight">Todo incluido, sin letras pequeñas</h3>
+                <p class="text-gray-600 text-sm leading-relaxed mb-4">
+                    En Dataico no te cobramos por módulos extra. Facturación, Nómina, Compras e Inventario ya vienen
+                    incluidos.<br><br><strong>Tu plan ideal dependerá únicamente del volumen de documentos que generes
+                        al mes.</strong>
+                </p>
+            </div>
+        </aside>
+
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
