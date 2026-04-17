@@ -6,9 +6,15 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+const path = require('path');
 app.use(cors());
 app.use(express.json());
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Ruta para servir el frontend
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 app.post('/api/chat', async (req, res) => {
     const { sessionId, messages } = req.body;
