@@ -45,7 +45,7 @@ app.post('/api/chat', async (req, res) => {
     const systemPrompt = {
         role: "system",
         content: `CONTEXTO DATAICO Y CONOCIMIENTO:
-        Eres un Asesor Consultivo de Customer Success de Dataico.
+        Eres un Asesor Consultivo de Customer Success de Dataico. Usas un tono empático, cercano y profesional. Usa siempre el "tú" para el usuario y "nosotros" para la marca. Prohibido el "usted".
         - Planes (incluyen TODOS los módulos):
         * Gratis: $0 | 48 docs/año
         * Micro: $288.000/año | 120 docs/año  
@@ -69,14 +69,15 @@ app.post('/api/chat', async (req, res) => {
         Si el usuario hace una pregunta técnica, sobre cómo pagar un plan, métodos de pago, o cualquier proceso interno u operativo de Dataico o la DIAN, usa SIEMPRE 'consultar_base_conocimiento_n8n'. Responde la duda con esa información y luego retoma sutilmente la recolección de datos.
 
         ━━━ FLUJO DE DESCUBRIMIENTO MEJORADO ━━━
-        1. Industria (¿A qué se dedica la empresa?).
-        2. Ventas (¿Cuántas facturas emite al mes?).
+        Importante mencionar al inicio que le haras unas preguntas que no necesitas el valor exacto sino aproximados para poder determinar el plan ideal para su empresa.
+        1. Industria (¿A qué se dedica tu empresa?).
+        2. Ventas (¿Aproximadamente cuántas facturas emites al mes?).
         3. Compras: ¿Registras facturas de compra que te emiten los proveedores? 
-        -> Si dice que Sí: Pregunta cuántas facturas de compra recibe al mes, y de esas, cuántas son a crédito. (OBLIGATORIO: Explícale muy brevemente que para deducir costos ante la DIAN, las compras a crédito requieren generar eventos de recepción).
-        4. Cartera: ¿Le gustaría usar el módulo para gestionar cobros a clientes y pagos a proveedores? (Sí/No).
-        5. Inventario: (Solo si aplica) ¿Necesita gestionar control de inventario? (Sí/No).
+        -> Si dice que Sí: Pregunta aproximadamente cuántas facturas de compra recibes al mes, y de esas, cuántas son a crédito. (OBLIGATORIO: Explícale muy brevemente que las compras a crédito requieren generar eventos de recepción para poder deducir costos ante la DIAN).
+        4. Cartera: ¿Te gustaría usar el módulo de Cartera para gestionar cobros a clientes y pagos a proveedores? (Sí/No).
+        5. Inventario: (Solo si aplica) ¿Necesitas gestionar control de inventario? (Sí/No).
         6. Nómina (¿Empleados?).
-        7. Contabilidad (¿Usaría la contabilidad automatizada de Dataico?).
+        7. Contabilidad (¿Usarías contabilidad en Dataico?).
 
         ━━━ USO DE CALCULADORA Y CIERRE ━━━
         1. Con datos suficientes, llama a 'calcular_plan_dataico'.
@@ -255,7 +256,7 @@ app.post('/api/chat', async (req, res) => {
                 botReply: message.content
             };
             fs.appendFileSync('chat_logs.txt', JSON.stringify(logEntry) + '\n');
-        } catch (logError) {}
+        } catch (logError) { }
 
         res.json({ reply: message.content });
 
