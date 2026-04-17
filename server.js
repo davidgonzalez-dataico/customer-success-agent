@@ -228,14 +228,18 @@ app.post('/api/chat', async (req, res) => {
             message = data.choices[0].message;
         }
 
-        // GUARDADO DE LOGS DE AUDITORÍA
-        const logEntry = {
-            timestamp: new Date().toISOString(),
-            sessionId: sessionId,
-            lastUserMessage: messages && messages.length > 0 ? messages[messages.length - 1].content : "",
-            botReply: message.content
-        };
-        fs.appendFileSync('chat_logs.txt', JSON.stringify(logEntry) + '\n');
+        // GUARDADO DE LOGS DE AUDITORÍA (Seguro para Vercel)
+        try {
+            const logEntry = {
+                timestamp: new Date().toISOString(),
+                sessionId: sessionId,
+                lastUserMessage: messages && messages.length > 0 ? messages[messages.length - 1].content : "",
+                botReply: message.content
+            };
+            fs.appendFileSync('chat_logs.txt', JSON.stringify(logEntry) + '\n');
+        } catch (logError) {
+            console.log("Aviso: No se pudo escribir en el log (esperado en Vercel)");
+        }
 
         res.json({ reply: message.content });
 
