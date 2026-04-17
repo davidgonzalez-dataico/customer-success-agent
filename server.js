@@ -247,7 +247,7 @@ app.post('/api/chat', async (req, res) => {
             message = data.choices[0].message;
         }
 
-        // GUARDADO DE LOGS SEGURO
+        // GUARDADO DE LOGS EN LA NUBE (Vía n8n -> Google Sheets)
         try {
             const logEntry = {
                 timestamp: new Date().toISOString(),
@@ -255,8 +255,17 @@ app.post('/api/chat', async (req, res) => {
                 lastUserMessage: messages && messages.length > 0 ? messages[messages.length - 1].content : "",
                 botReply: message.content
             };
-            fs.appendFileSync('chat_logs.txt', JSON.stringify(logEntry) + '\n');
-        } catch (logError) { }
+
+            // Hacemos el llamado a tu nuevo webhook de n8n
+            await fetch('https://dataico.app.n8n.cloud/webhook/save-chat-log', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(logEntry)
+            });
+
+        } catch (logError) {
+            console.error("Error enviando los logs a n8n:", logError);
+        }
 
         res.json({ reply: message.content });
 
