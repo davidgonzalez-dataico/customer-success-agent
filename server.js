@@ -1,15 +1,33 @@
 const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
+const path = require('path');
 require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const path = require('path');
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Utilidad para reintentos automáticos (SOLO para OpenAI)
+async function fetchConReintento(url, options, maxRetries = 2, delay = 1000) {
+    for (let i = 0; i <= maxRetries; i++) {
+        try {
+            const response = await fetch(url, options);
+            if (!response.ok) {
+                const errorData = await response.text();
+                throw new Error(`HTTP ${response.status}: ${errorData}`);
+            }
+            return response;
+        } catch (error) {
+            if (i === maxRetries) throw error;
+            console.log(`⚠️ Reintentando OpenAI... (${i + 1}/${maxRetries}) debido a: ${error.message}`);
+            await new Promise(res => setTimeout(res, delay));
+        }
+    }
+}
 
 // Ruta para servir el frontend
 app.get('/', (req, res) => {
@@ -112,7 +130,8 @@ app.post('/api/chat', async (req, res) => {
     try {
         let conversation = [systemPrompt, ...messages];
 
-        let response = await fetch('https://api.openai.com/v1/chat/completions', {
+        // --- LLAMADA 1 A OPENAI CON RETRY ---
+        let response = await fetchConReintento('https://api.openai.com/v1/chat/completions', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -139,7 +158,7 @@ app.post('/api/chat', async (req, res) => {
 
             conversation.push(message);
 
-            // CONDICIONAL 1: CALCULADORA Y LÓGICA INFERIDA
+            // CONDICIONAL 1: CALCULADORA Y LÓGICA INFERIDA ORIGINAL
             if (toolCall.function.name === "calcular_plan_dataico") {
                 const V = args.ventas || 0;
                 const C_tot = args.compras_totales || 0;
@@ -178,14 +197,13 @@ app.post('/api/chat', async (req, res) => {
                     content: JSON.stringify({ docs_mensuales: totalMensual, docs_anuales: totalAnual })
                 });
             }
-            // CONDICIONAL 2: LLAMADA A N8N (AQUÍ ESTÁ CORREGIDO EL WEBHOOK A PRODUCCIÓN)
+            // CONDICIONAL 2: LLAMADA A N8N ORIGINAL
             else if (toolCall.function.name === "consultar_base_conocimiento_n8n") {
                 console.log("\n==========================================");
                 console.log("🤖 LLAMANDO A N8N PARA RESOLVER DUDA TÉCNICA");
                 console.log("Pregunta:", args.pregunta_del_usuario);
                 console.log("==========================================\n");
                 try {
-                    // CAMBIADO: '/webhook/' en lugar de '/webhook-test/'
                     const n8nResponse = await fetch('https://dataico.app.n8n.cloud/webhook/customer-success', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -204,13 +222,13 @@ app.post('/api/chat', async (req, res) => {
                         role: "tool",
                         tool_call_id: toolCall.id,
                         name: toolCall.function.name,
-                        content: "Hubo un error de conexión con la base de conocimiento. Por favor responde la duda si tienes la información o pide disculpas."
+                        content: "Hubo un error de conexión con la base de conocimiento."
                     });
                 }
             }
 
-            // SEGUNDA LLAMADA PARA GENERAR RESPUESTA FINAL
-            response = await fetch('https://api.openai.com/v1/chat/completions', {
+            // --- LLAMADA 2 A OPENAI CON RETRY ---
+            response = await fetchConReintento('https://api.openai.com/v1/chat/completions', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -228,7 +246,7 @@ app.post('/api/chat', async (req, res) => {
             message = data.choices[0].message;
         }
 
-        // GUARDADO DE LOGS DE AUDITORÍA (Seguro para Vercel)
+        // GUARDADO DE LOGS SEGURO
         try {
             const logEntry = {
                 timestamp: new Date().toISOString(),
@@ -237,19 +255,17 @@ app.post('/api/chat', async (req, res) => {
                 botReply: message.content
             };
             fs.appendFileSync('chat_logs.txt', JSON.stringify(logEntry) + '\n');
-        } catch (logError) {
-            console.log("Aviso: No se pudo escribir en el log (esperado en Vercel)");
-        }
+        } catch (logError) {}
 
         res.json({ reply: message.content });
 
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Error interno del servidor.' });
+        res.status(500).json({ error: 'Hubo un error al conectar con la IA. Por favor intenta de nuevo.' });
     }
 });
 
-// ADAPTACIÓN FINAL PARA VERCEL (Exportar App)
+// ADAPTACIÓN FINAL PARA VERCEL
 if (process.env.NODE_ENV !== 'production') {
     app.listen(PORT, () => console.log(`🚀 Asesor corriendo en: http://localhost:${PORT}`));
 }
