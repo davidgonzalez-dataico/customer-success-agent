@@ -65,9 +65,9 @@ app.post('/api/chat', async (req, res) => {
             "docs_anuales": null // Llénalo SOLO la primera vez que la herramienta te devuelva el cálculo.
         }
 
-        ━━━ MANEJO DE DUDAS Y DESVÍOS ━━━
-        Si el usuario hace una pregunta técnica, sobre cómo pagar un plan, métodos de pago, o cualquier proceso interno u operativo de Dataico o la DIAN, usa SIEMPRE 'consultar_base_conocimiento_n8n'. Responde la duda con esa información y luego retoma sutilmente la recolección de datos.
-
+        ━━━ MANEJO DE DUDAS Y DESVÍOS (REGLA ESTRICTA) ━━━
+        TIENES ESTRICTAMENTE PROHIBIDO inventar o asumir respuestas. Si el usuario hace CUALQUIER pregunta sobre qué es Dataico, cómo funciona, soporte, métodos de pago, la DIAN, o procesos internos, ESTÁS OBLIGADO a usar la herramienta 'consultar_base_conocimiento_n8n'. NUNCA uses tu propio conocimiento previo para responder estas dudas. Llama a la herramienta, lee lo que te devuelve, responde la duda basándote ÚNICAMENTE en eso, y luego retoma sutilmente la recolección de datos.
+        
         ━━━ FLUJO DE DESCUBRIMIENTO MEJORADO ━━━
         Importante mencionar al inicio que le haras unas preguntas que no necesitas el valor exacto sino aproximados para poder determinar el plan ideal para su empresa.
         1. Industria (¿A qué se dedica tu empresa?).
@@ -116,7 +116,7 @@ app.post('/api/chat', async (req, res) => {
             type: "function",
             function: {
                 name: "consultar_base_conocimiento_n8n",
-                description: "Úsala para dudas técnicas de la plataforma o DIAN.",
+                description: "OBLIGATORIO usarla para CUALQUIER pregunta del usuario sobre qué es Dataico, cómo funciona, beneficios, la DIAN, soporte o procesos internos. NUNCA respondas estas dudas sin usar esta herramienta primero.",
                 parameters: {
                     type: "object",
                     properties: {
@@ -139,7 +139,7 @@ app.post('/api/chat', async (req, res) => {
                 'Authorization': `Bearer ${OPENAI_API_KEY}`
             },
             body: JSON.stringify({
-                model: 'gpt-4o-mini',
+                model: 'gpt-4.1-mini',
                 messages: conversation,
                 tools: tools,
                 tool_choice: "auto",
