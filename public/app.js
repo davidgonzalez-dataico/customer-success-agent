@@ -189,7 +189,14 @@ async function sendMessage(text) {
         const data = await response.json();
         document.getElementById(loadId).remove();
 
-        // 1. Parseamos el JSON que envía el backend
+        // 1. Validar si el backend devolvió un error explícito
+        if (data.error) {
+            console.error("Error del Servidor:", data.error);
+            addMessage(`❌ Error del Servidor: ${data.error}`, true);
+            return;
+        }
+
+        // 2. Parseamos el JSON que envía el backend
         let parsedData = {};
         try {
             parsedData = JSON.parse(data.reply);
