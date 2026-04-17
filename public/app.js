@@ -139,9 +139,9 @@ function renderFinalCards(docsAnuales) {
                         ${priceHtml}
                     </div>
                     
-                    <button class="w-full bg-coral hover:bg-[#e04f4a] text-white font-bold py-3 rounded-xl transition-colors shadow-md flex justify-center items-center gap-2">
+                    <a href="https://app.dataico.com/?registro=true" target="_blank" class="w-full bg-coral hover:bg-[#e04f4a] text-white font-bold py-3 rounded-xl transition-colors shadow-md flex justify-center items-center gap-2 no-underline cursor-pointer">
                         Adquirir ${recPlan} <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M12 5l7 7-7 7"></path></svg>
-                    </button>
+                    </a>
                 </div>
 
                 <div class="w-full md:w-[40%] bg-white rounded-2xl p-6 border border-gray-200 hover:border-gray-300 transition-colors flex flex-col justify-between">
@@ -152,9 +152,9 @@ function renderFinalCards(docsAnuales) {
                     </div>
                     <div>
                         <div class="text-gray-900 font-bold text-lg mb-4">${altPrice}</div>
-                        <button class="w-full bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-2.5 rounded-xl transition-colors text-sm">
+                        <a href="https://www.dataico.com/planes-y-precios" target="_blank" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-2.5 rounded-xl transition-colors text-sm block text-center no-underline cursor-pointer">
                             Ver detalles
-                        </button>
+                        </a>
                     </div>
                 </div>
 
