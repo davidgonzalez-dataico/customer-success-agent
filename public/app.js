@@ -12,18 +12,17 @@ function scrollToBottom() {
 }
 
 function addMessage(text, isBot) {
-    // 1. Convertir saltos de línea
     let formattedText = text.replace(/\n/g, '<br>');
-    // 2. Convertir negrillas de Markdown (**texto**) a etiquetas HTML
-    formattedText = formattedText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    formattedText = formattedText.replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold">$1</strong>');
 
+    // Aplicamos font-sans text-[14px] para el cuerpo del chat
     const html = `
         <div class="flex gap-3 w-full msg-enter ${isBot ? 'justify-start' : 'justify-end'}">
-            ${isBot ? '<div class="w-8 h-8 rounded-full bg-coral text-white flex-shrink-0 flex items-center justify-center text-sm mt-1 pt-1 font-bold">d</div>' : ''}
-            <div class="${isBot ? 'bot-bubble max-w-[85%] md:max-w-[80%]' : 'user-bubble max-w-[85%] md:max-w-[80%]'}">
+            ${isBot ? '<div class="w-8 h-8 rounded-full bg-[#ED5650] text-white flex-shrink-0 flex items-center justify-center font-body font-bold text-[12px] mt-1 shadow-sm tracking-wider">AI</div>' : ''}
+            <div class="${isBot ? 'bot-bubble max-w-[85%] md:max-w-[80%]' : 'user-bubble max-w-[85%] md:max-w-[80%]'} font-sans text-[14px] leading-relaxed">
                 ${formattedText}
             </div>
-            ${!isBot ? '<div class="w-8 h-8 rounded-full bg-gray-200 text-gray-600 flex-shrink-0 flex items-center justify-center text-xs mt-1">Tú</div>' : ''}
+            ${!isBot ? '<div class="w-8 h-8 rounded-full bg-[#333333] text-white flex-shrink-0 flex items-center justify-center font-body text-[12px] mt-1 shadow-sm"><span class="material-symbols-outlined text-[16px]">person</span></div>' : ''}
         </div>
     `;
     chatContainer.insertAdjacentHTML('beforeend', html);
@@ -32,13 +31,14 @@ function addMessage(text, isBot) {
 
 function showLoading() {
     const id = 'loading-' + Date.now();
+    // Puntos de carga usando el color Warning del SD
     const html = `
         <div id="${id}" class="flex gap-3 w-full msg-enter justify-start">
-            <div class="w-8 h-8 rounded-full bg-coral text-white flex-shrink-0 flex items-center justify-center text-sm pt-1 font-bold">d</div>
-            <div class="bot-bubble flex items-center gap-2">
-                <div class="w-2 h-2 bg-gray-300 rounded-full animate-bounce"></div>
-                <div class="w-2 h-2 bg-gray-300 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
-                <div class="w-2 h-2 bg-gray-300 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+            <div class="w-8 h-8 rounded-full bg-[#ED5650] text-white flex-shrink-0 flex items-center justify-center font-body font-bold text-[12px] pt-1 shadow-sm tracking-wider">AI</div>
+            <div class="bot-bubble flex items-center gap-2 py-[16px] px-[24px]">
+                <div class="w-2.5 h-2.5 bg-[#F39C12] rounded-full animate-bounce"></div>
+                <div class="w-2.5 h-2.5 bg-[#F39C12] rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
+                <div class="w-2.5 h-2.5 bg-[#F39C12] rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
             </div>
         </div>
     `;
@@ -47,27 +47,26 @@ function showLoading() {
     return id;
 }
 
-// Dibuja las píldoras interactivas
 function renderQuickReplies(options) {
     const id = 'qr-' + Date.now();
+    // Pill buttons alineados al SD: redondeo 200px, fuente body medium, bordes tenues
     let buttonsHtml = options.map(opt =>
-        `<button class="quick-reply-btn hover:bg-[#fdf2f2] hover:text-coral hover:border-coral transition-colors bg-white border border-gray-200 text-gray-700 px-4 py-2 rounded-full text-sm font-medium shadow-sm">${opt}</button>`
+        `<button class="hover:bg-[#ED5650]/10 hover:text-[#ED5650] hover:border-[#ED5650] transition-colors bg-[#FFFFFF] border border-gray-200 text-[#3C3C3C] px-5 py-2.5 rounded-[200px] font-sans text-[14px] font-medium shadow-sm">${opt}</button>`
     ).join('');
 
     const html = `
-        <div id="${id}" class="flex gap-2 w-full msg-enter justify-start pl-11 flex-wrap mt-2 mb-4">
+        <div id="${id}" class="flex gap-2 w-full msg-enter justify-start pl-11 flex-wrap mt-2 mb-6">
             ${buttonsHtml}
         </div>
     `;
     chatContainer.insertAdjacentHTML('beforeend', html);
     scrollToBottom();
 
-    // Agregar eventos a los botones
     const container = document.getElementById(id);
     const buttons = container.querySelectorAll('button');
     buttons.forEach(btn => {
         btn.addEventListener('click', () => {
-            container.remove(); // Quita las opciones una vez elegidas
+            container.remove();
             sendMessage(btn.textContent);
         });
     });
@@ -263,42 +262,42 @@ setTimeout(() => {
 // --- DICCIONARIO DE BENEFICIOS POR MÓDULO ---
 const bannerContent = {
     "Industria": {
-        icon: "🏢",
+        icon: "domain",
         title: "Todo incluido, sin letra pequeña",
-        text: "En Dataico no pagas por módulos extra: Ventas, Nómina, Compras y Contabilidad ya forman parte de tu ecosistema.<br><br><strong>Tu plan ideal se adapta solo al volumen de documentos que generes cada mes, para que crezcas a tu ritmo.</strong>"
+        text: "En Dataico no pagas por módulos extra: Ventas, Nómina, Compras y Contabilidad ya forman parte de tu ecosistema.<br><br><strong class='font-bold'>Tu plan ideal se adapta solo al volumen de documentos que generes cada mes, para que crezcas a tu ritmo.</strong>"
     },
     "Ventas": {
-        icon: "📄",
+        icon: "sell", // Token del SD
         title: "Ventas y Facturación",
-        text: "Crea Facturas Electrónicas, POS, Cotizaciones y Notas de forma ágil y sin complicaciones. <br><br><strong>Beneficio:</strong> Cumples al 100% con la DIAN mientras mantienes el control de tu negocio en tiempo real."
+        text: "Crea Facturas Electrónicas, POS, Cotizaciones y Notas de forma ágil y sin complicaciones. <br><br><strong class='font-bold text-[#333333]'>Beneficio:</strong> Cumples al 100% con la DIAN mientras mantienes el control de tu negocio en tiempo real."
     },
     "Compras": {
-        icon: "🛒",
+        icon: "shopping_cart", // Token del SD
         title: "Recepción de Compras",
-        text: "Asegura tus deducciones de impuestos y soporta costos ante la DIAN de la manera más sencilla.<br><br><strong>Beneficio:</strong> Nuestro Bot Auditor hace el trabajo pesado por ti: revisa, audita e importa tus compras automáticamente."
+        text: "Asegura tus deducciones de impuestos y soporta costos ante la DIAN de la manera más sencilla.<br><br><strong class='font-bold text-[#333333]'>Beneficio:</strong> Nuestro Bot Auditor hace el trabajo pesado por ti: revisa, audita e importa tus compras automáticamente."
     },
     "Cartera": {
-        icon: "💰",
+        icon: "account_balance_wallet", // Token del SD
         title: "Cuentas por Cobrar y Pagar",
-        text: "Organiza tus Recibos de Caja y Comprobantes de Egreso sin ruidos ni interferencias.<br><br><strong>Beneficio:</strong> Mantén tu flujo de caja sano y bajo control con una herramienta que habla tu idioma."
+        text: "Organiza tus Recibos de Caja y Comprobantes de Egreso sin ruidos ni interferencias.<br><br><strong class='font-bold text-[#333333]'>Beneficio:</strong> Mantén tu flujo de caja sano y bajo control con una herramienta que habla tu idioma."
     },
     "Inventario": {
-        icon: "📦",
+        icon: "inventory_2", // Token del SD
         title: "Control de Inventario",
-        text: "Gestiona tus entradas y salidas con total transparencia y claridad.<br><br><strong>Beneficio:</strong> El Inventario se actualiza solo cada vez que generas una factura de venta. Así de simple."
+        text: "Gestiona tus entradas y salidas con total transparencia y claridad.<br><br><strong class='font-bold text-[#333333]'>Beneficio:</strong> El Inventario se actualiza solo cada vez que generas una factura de venta. Así de simple."
     },
     "Nomina": {
-        icon: "👥",
+        icon: "groups", // Token del SD
         title: "Nómina Electrónica",
-        text: "Liquida sueldos, novedades y prestaciones sociales en un par de clics.<br><br><strong>Beneficio:</strong> Transmisión masiva a la DIAN en segundos, para que te olvides de las multas y te enfoques en crecer."
+        text: "Liquida sueldos, novedades y prestaciones sociales en un par de clics.<br><br><strong class='font-bold text-[#333333]'>Beneficio:</strong> Transmisión masiva a la DIAN en segundos, para que te olvides de las multas y te enfoques en crecer."
     },
     "Contabilidad": {
-        icon: "📊",
+        icon: "monitoring", // Token del SD
         title: "Automatización Contable",
-        text: "Olvídate de la digitación doble; nosotros nos ocupamos de que tus números siempre cuadren.<br><br><strong>Beneficio:</strong> Cada venta, compra o pago genera su comprobante contable automáticamente gracias a nuestro motor robusto."
+        text: "Olvídate de la digitación doble; nosotros nos ocupamos de que tus números siempre cuadren.<br><br><strong class='font-bold text-[#333333]'>Beneficio:</strong> Cada venta, compra o pago genera su comprobante contable automáticamente gracias a nuestro motor robusto."
     },
     "Cierre": {
-        icon: "✨",
+        icon: "stars",
         title: "Tu Ecosistema Ideal",
         text: "Hemos diseñado la capacidad exacta que tu negocio necesita para dar el máximo de sí mismo.<br><br>Disfruta de la tranquilidad de operar con holgura, sin preocuparte por límites ni bloqueos a fin de mes."
     }
@@ -309,16 +308,15 @@ function updateBanner(moduloKey) {
     const banner = document.getElementById('dynamic-banner');
     const data = bannerContent[moduloKey] || bannerContent["Industria"];
 
-    // Animación de desvanecimiento
     banner.style.opacity = 0;
 
     setTimeout(() => {
         banner.innerHTML = `
-            <div class="w-12 h-12 rounded-full bg-[#fdf2f2] flex items-center justify-center mb-5 text-2xl shadow-sm border border-coral/10">
-                ${data.icon}
+            <div class="w-12 h-12 rounded-[16px] bg-gray-50 border border-gray-100 flex items-center justify-center mb-6 shadow-inner">
+                <span class="material-symbols-outlined text-[#ED5650] text-[24px]">${data.icon}</span>
             </div>
-            <h3 class="font-bold text-gray-900 text-lg mb-3 leading-tight">${data.title}</h3>
-            <p class="text-gray-600 text-sm leading-relaxed mb-4">
+            <h3 class="font-headline text-[24px] text-[#333333] font-medium mb-4">${data.title}</h3>
+            <p class="font-sans text-[14px] font-normal text-[#333333] mb-6 leading-relaxed">
                 ${data.text}
             </p>
         `;
