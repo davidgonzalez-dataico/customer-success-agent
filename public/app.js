@@ -212,22 +212,27 @@ async function sendMessage(text) {
             updateBanner(parsedData.modulo);
         }
 
-        // 4. Mostramos el mensaje del bot en el chat
+        // 4. Mostramos el mensaje del bot en el chat (ARRIBA)
         if (parsedData.texto) {
             addMessage(parsedData.texto, true);
         }
 
-        // 5. Renderizamos las píldoras de respuestas rápidas si existen
-        if (parsedData.opciones && Array.isArray(parsedData.opciones) && parsedData.opciones.length > 0) {
-            renderQuickReplies(parsedData.opciones);
-        }
-
-        // 6. ESCUDO DE TARJETAS: Solo se muestran si hay un cálculo y es DIFERENTE al anterior
+        // 5. ESCUDO DE TARJETAS Y BOTONES HARDCODEADOS (EN MEDIO Y ABAJO)
         if (parsedData.docs_anuales !== null && parsedData.docs_anuales !== undefined) {
             if (parsedData.docs_anuales !== lastRenderedDocs) {
+                // Renderiza las tarjetas
                 renderFinalCards(parsedData.docs_anuales);
-                lastRenderedDocs = parsedData.docs_anuales; // Guardamos en memoria el nuevo cálculo
+                lastRenderedDocs = parsedData.docs_anuales;
+
+                // INYECCIÓN HARDCODEADA: Esperamos un instante y pintamos los botones abajo
+                setTimeout(() => {
+                    renderQuickReplies(["Tengo otra duda", "¿Cómo adquiero este plan?"]);
+                }, 100);
             }
+        }
+        // 6. Si NO hay tarjetas nuevas, mostramos las opciones normales que la IA haya mandado (si aplica)
+        else if (parsedData.opciones && Array.isArray(parsedData.opciones) && parsedData.opciones.length > 0) {
+            renderQuickReplies(parsedData.opciones);
         }
 
     } catch (e) {
@@ -243,9 +248,9 @@ userInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessa
 setTimeout(() => {
     // Simulamos la estructura JSON que devolvería OpenAI
     const saludoInicial = {
-        texto: "👋 ¡Hola! Estoy aquí para ayudarte a dimensionar el plan perfecto para ti. Para empezar, **¿A qué se dedica tu empresa?**",
-        modulo: "Industria",
-        opciones: ["Servicios / Consultoría", "Comercio / Retail", "Producción / Manufactura", "Otro"]
+        texto: "👋 ¡Hola! Soy tu Asesor AI de Dataico. Mi meta es ayudarte a simplificar tu gestión para que te enfoques en lo que de verdad importa: hacer crecer tu negocio. \n\nAquí tienes un ecosistema completo (Facturación, Nómina, Compras y Contabilidad) sin pagar un solo peso por módulos extra. Para recomendarte el plan que mejor se adapte a tu empresa, cuéntame: **¿A qué se dedica tu negocio?**",
+        modulo: "TodoIncluido",
+        opciones: []
     };
 
     // Lo guardamos en el historial para que la IA tenga el contexto
@@ -259,47 +264,27 @@ setTimeout(() => {
 }, 500); // Aparece medio segundo después de cargar la página
 
 
-// --- DICCIONARIO DE BENEFICIOS POR MÓDULO ---
+// --- DICCIONARIO ESTRATÉGICO DE BANNERS EDUCATIVOS ---
 const bannerContent = {
-    "Industria": {
-        icon: "domain",
-        title: "Todo incluido, sin letra pequeña",
-        text: "En Dataico no pagas por módulos extra: Ventas, Nómina, Compras y Contabilidad ya forman parte de tu ecosistema.<br><br><strong class='font-bold'>Tu plan ideal se adapta solo al volumen de documentos que generes cada mes, para que crezcas a tu ritmo.</strong>"
+    "TodoIncluido": {
+        icon: "all_inclusive", // Token del SD
+        title: "Un ecosistema, sin cobros extra",
+        text: "En Dataico <strong class='font-bold text-[#333333]'>no pagas por módulos</strong>. Ventas, Compras, Nómina, Cartera y Contabilidad ya forman parte de tu cuenta.<br><br>Tu plan se adapta únicamente a la cantidad de documentos que necesites generar cada mes, para que solo te preocupes por hacer crecer tu negocio."
     },
-    "Ventas": {
-        icon: "sell", // Token del SD
-        title: "Ventas y Facturación",
-        text: "Crea Facturas Electrónicas, POS, Cotizaciones y Notas de forma ágil y sin complicaciones. <br><br><strong class='font-bold text-[#333333]'>Beneficio:</strong> Cumples al 100% con la DIAN mientras mantienes el control de tu negocio en tiempo real."
+    "QueEsUnDocumento": {
+        icon: "description", // Token del SD
+        title: "¿Qué cuenta como Documento?",
+        text: "Un Documento es un registro que consume tu saldo mensual. Incluye:<br><br>• Facturas, POS y Cotizaciones<br>• Facturas de Compra (y sus eventos de recepción)<br>• Nómina Electrónica<br>• Comprobantes Contables y de Cartera<br><br><span class='text-xs text-gray-500'>*Crear productos o generar colillas de nómina NO consume saldo.</span>"
     },
-    "Compras": {
-        icon: "shopping_cart", // Token del SD
-        title: "Recepción de Compras",
-        text: "Asegura tus deducciones de impuestos y soporta costos ante la DIAN de la manera más sencilla.<br><br><strong class='font-bold text-[#333333]'>Beneficio:</strong> Nuestro Bot Auditor hace el trabajo pesado por ti: revisa, audita e importa tus compras automáticamente."
-    },
-    "Cartera": {
-        icon: "account_balance_wallet", // Token del SD
-        title: "Cuentas por Cobrar y Pagar",
-        text: "Organiza tus Recibos de Caja y Comprobantes de Egreso sin ruidos ni interferencias.<br><br><strong class='font-bold text-[#333333]'>Beneficio:</strong> Mantén tu flujo de caja sano y bajo control con una herramienta que habla tu idioma."
-    },
-    "Inventario": {
-        icon: "inventory_2", // Token del SD
-        title: "Control de Inventario",
-        text: "Gestiona tus entradas y salidas con total transparencia y claridad.<br><br><strong class='font-bold text-[#333333]'>Beneficio:</strong> El Inventario se actualiza solo cada vez que generas una factura de venta. Así de simple."
-    },
-    "Nomina": {
-        icon: "groups", // Token del SD
-        title: "Nómina Electrónica",
-        text: "Liquida sueldos, novedades y prestaciones sociales en un par de clics.<br><br><strong class='font-bold text-[#333333]'>Beneficio:</strong> Transmisión masiva a la DIAN en segundos, para que te olvides de las multas y te enfoques en crecer."
-    },
-    "Contabilidad": {
-        icon: "monitoring", // Token del SD
-        title: "Automatización Contable",
-        text: "Olvídate de la digitación doble; nosotros nos ocupamos de que tus números siempre cuadren.<br><br><strong class='font-bold text-[#333333]'>Beneficio:</strong> Cada venta, compra o pago genera su comprobante contable automáticamente gracias a nuestro motor robusto."
+    "EvitaBloqueos": {
+        icon: "shield", // Token del SD
+        title: "Crece con total tranquilidad",
+        text: "Cada plan te ofrece una bolsa de documentos. <br><br>Te recomendamos elegir uno con un poco de <strong class='font-bold text-[#333333]'>holgura (capacidad de sobra);</strong> así, si tienes un pico de ventas a fin de mes, tu operación seguirá fluyendo sin interrupciones.<br><br><span class='text-xs text-gray-500'>*Recuerda que los documentos no utilizados no son acumulables.</span>"
     },
     "Cierre": {
         icon: "stars",
-        title: "Tu Ecosistema Ideal",
-        text: "Hemos diseñado la capacidad exacta que tu negocio necesita para dar el máximo de sí mismo.<br><br>Disfruta de la tranquilidad de operar con holgura, sin preocuparte por límites ni bloqueos a fin de mes."
+        title: "Tu Plan Ideal",
+        text: "Basándonos en tu operación, hemos calculado la capacidad que mejor se adapta a ti.<br><br>Disfruta la calma de saber que tienes todo bajo control y aprovecha todas las herramientas de Dataico para simplificar tu día a día."
     }
 };
 

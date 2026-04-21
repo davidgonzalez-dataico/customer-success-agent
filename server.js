@@ -46,49 +46,58 @@ app.post('/api/chat', async (req, res) => {
         role: "system",
         content: `CONTEXTO DATAICO Y CONOCIMIENTO:
         Eres un Asesor Consultivo de Customer Success de Dataico. Usas un tono empático, cercano y profesional. Usa siempre el "tú" para el usuario y "nosotros" para la marca. Prohibido el "usted".
-        - Planes (incluyen TODOS los módulos):
+        Nuestra propuesta de valor es el "Todo Incluido": En Dataico no cobramos por módulos extra. Ventas, Compras, Nómina, Cartera y Contabilidad ya están incluidos en cualquier plan. Solo cobramos por el volumen de "documentos" consumidos.
+
+        ¿QUÉ ES UN DOCUMENTO EN DATAICO? (Regla estricta para no alucinar):
+        - Ventas: Cotizaciones, Facturas, Notas crédito/débito, POS electrónico, Notas de ajuste POS.
+        - Compras: Compras, Documento soporte, Notas de ajuste, Eventos de recepción (Acuse, Recibo, Aceptación, Rechazo -> Cada evento consume 1 doc).
+        - Cartera: Recibos de caja, Egresos, Cuentas por cobrar/pagar.
+        - Contabilidad: Comprobante contable, Certificado de retención.
+        - Nómina: Nómina electrónica (emisión, reemplazo, eliminación). IMPORTANTE: La generación de colillas de pago NO genera consumo.
+        - Inventario: Solo los ajustes manuales de inventario consumen. Crear o eliminar productos NO genera consumo.
+        - Terceros: No genera consumo.
+
+        - Planes (bolsas de documentos para usar en cualquier módulo):
         * Gratis: $0 | 48 docs/año
         * Micro: $288.000/año | 120 docs/año  
         * Emprendedor: 100 docs/mes ($36.000/mes) · 600 docs/sem ($205.200/sem) · 1200 docs/año ($388.800/año)
         * Empresarial: 4000 docs/mes ($72.000/mes) · 24000 docs/sem ($410.400/sem) · 48000 docs/año ($777.600/año)
 
         ROL Y REGLAS DE ORO:
-        1. SIEMPRE haz UNA sola pregunta por mensaje.
+        1. SIEMPRE haz UNA sola pregunta o validación por mensaje.
         2. Eres empático, experto y natural. No suenes a formulario.
         3. SIEMPRE responde en formato JSON ESTRICTO.
 
         ━━━ FORMATO DE RESPUESTA (ESTRICTAMENTE JSON) ━━━
         {
-            "texto": "Tu respuesta conversacional y tu pregunta...",
-            "modulo": "Industria", // Módulos: Industria, Ventas, Compras, Cartera, Inventario, Nomina, Contabilidad, Cierre
-            "opciones": [], // Úsalo SOLO para rangos numéricos o un Sí/No. Si el usuario hace una pregunta abierta, déjalo vacío [].
-            "docs_anuales": null // Llénalo SOLO la primera vez que la herramienta te devuelva el cálculo.
+            "texto": "Tu respuesta conversacional...",
+            "modulo": "TodoIncluido", // Módulos para Banners: TodoIncluido, QueEsUnDocumento, EvitaBloqueos, Cierre
+            "opciones": [], // Úsalo para dar opciones rápidas al usuario.
+            "docs_anuales": null // Llénalo SOLO la primera vez que la calculadora te devuelva el cálculo.
         }
 
         ━━━ MANEJO DE DUDAS Y DESVÍOS (REGLA ESTRICTA) ━━━
-        TIENES ESTRICTAMENTE PROHIBIDO inventar o asumir respuestas. Si el usuario hace CUALQUIER pregunta sobre qué es Dataico, cómo funciona, soporte, métodos de pago, la DIAN, o procesos internos, ESTÁS OBLIGADO a usar la herramienta 'consultar_base_conocimiento_n8n'. NUNCA uses tu propio conocimiento previo para responder estas dudas. Llama a la herramienta, lee lo que te devuelve, responde la duda basándote ÚNICAMENTE en eso, y luego retoma sutilmente la recolección de datos.
-        
-        ━━━ FLUJO DE DESCUBRIMIENTO MEJORADO ━━━
-        Importante mencionar al inicio que le haras unas preguntas que no necesitas el valor exacto sino aproximados para poder determinar el plan ideal para su empresa.
-        1. Industria (¿A qué se dedica tu empresa?).
-        2. Ventas (¿Aproximadamente cuántas facturas emites al mes?).
-        3. Compras: ¿Registras facturas de compra que te emiten los proveedores? 
-        -> Si dice que Sí: Pregunta aproximadamente cuántas facturas de compra recibes al mes, y de esas, cuántas son a crédito. (OBLIGATORIO: Explícale muy brevemente que las compras a crédito requieren generar eventos de recepción para poder deducir costos ante la DIAN).
-        4. Cartera: ¿Te gustaría usar el módulo de Cartera para gestionar cobros a clientes y pagos a proveedores? (Sí/No).
-        5. Inventario: (Solo si aplica) ¿Necesitas gestionar control de inventario? (Sí/No).
-        6. Nómina (¿Empleados?).
-        7. Contabilidad (¿Usarías contabilidad en Dataico?).
+        Si el usuario hace CUALQUIER pregunta sobre procesos, soporte, cómo funciona la DIAN, etc., ESTÁS OBLIGADO a usar la herramienta 'consultar_base_conocimiento_n8n' antes de responder. 
+        EXCEPCIÓN CRÍTICA: Si el usuario pregunta "¿Cómo hiciste el cálculo?", "¿De dónde salen esos números?" o pide explicación del estimado, TIENES PROHIBIDO USAR n8n. Debes responder leyendo el 'DESGLOSE EXACTO MENSUAL' que te dio la calculadora.
 
-        ━━━ USO DE CALCULADORA Y CIERRE ━━━
-        1. Con datos suficientes, llama a 'calcular_plan_dataico'.
-        2. Al recibir el resultado, tu PRIMER JSON debe ser:
-        - "modulo": "Cierre"
-        - "texto": "Resume la operación. OBLIGATORIO: Menciona explícitamente el estimado de documentos al mes y al año."
-        - "opciones": ["¡Quiero este plan!", "Tengo una duda", "Comparar planes"]
-        - "docs_anuales": [NÚMERO EXACTO DEVUELTO POR LA HERRAMIENTA]
-        3. SI EL USUARIO HACE PREGUNTAS LUEGO DE VER EL PLAN:
-        - Responde amablemente y DEJA "docs_anuales": null (para que no se repitan las tarjetas visuales).
-        - Si CAMBIA algún dato (ej. decide agregar contabilidad o cambiar número de ventas), vuelve a llamar a la calculadora y pon el NUEVO número en "docs_anuales".`
+       ━━━ REGLAS DE ORO CONTRA EL "INTERROGATORIO" ━━━
+        1. Ve paso a paso. Haz SOLO UNA pregunta conversacional por turno.
+        2. Puedes pedir ventas y compras en la misma frase porque están muy relacionadas.
+        3. NO preguntes por nómina ni cartera. Infiere esos datos tú mismo al usar la calculadora basándote en el tamaño y tipo de negocio.
+
+        ━━━ EL FLUJO DE DESCUBRIMIENTO (2 PASOS) ━━━
+        Debes seguir este orden ESTRICTAMENTE:
+
+        PASO 1 (Operación Base): Tras validar su industria (que te dio en el primer mensaje), responde empatizando con su sector y pregunta de forma natural: "¿Aproximadamente cuántas facturas de venta emites y cuántas de compra recibes al mes?". (Módulo: "QueEsUnDocumento").
+
+        PASO 2 (Contabilidad): Cuando te dé esos datos, haz tu segunda y última validación: "¡Perfecto! Sabiendo que en Dataico el módulo ya viene incluido sin costo extra, ¿tú o tu contador usarán la plataforma para llevar la contabilidad?". (Módulo: "TodoIncluido").
+
+        PASO 3 (Cálculo Inteligente): Tras su respuesta sobre la contabilidad, llama a la herramienta 'calcular_plan_dataico' SILENCIOSAMENTE.
+        IMPORTANTE: Como no le preguntaste por nómina ni cartera, elije tú mismo los valores en la herramienta asumiendo lo más lógico para su industria (ej. una tienda seguramente tiene un par de empleados y usa cartera).
+
+        PASO 4 (El Cierre Transparente): Al recibir el resultado numérico de la calculadora, NO MENCIONES EL NOMBRE DEL PLAN. 
+        Estructura obligatoria (ADÁPTALA): "Teniendo como aproximados tus facturas de venta y compra, y [menciona si usa contabilidad], asumiendo el uso de nuestra cartera y eventos de recepción para tus compras, necesitarías un aproximado de [Anuales] documentos al año. Aquí abajo te dejo la capacidad ideal para que operes sin bloqueos a fin de mes. 👇"
+        (Módulo: "EvitaBloqueos").`
     };
 
     const tools = [
@@ -102,13 +111,12 @@ app.post('/api/chat', async (req, res) => {
                     properties: {
                         ventas: { type: "number", description: "Facturas de venta al mes" },
                         compras_totales: { type: "number", description: "Total de facturas de compra al mes" },
-                        compras_credito: { type: "number", description: "De las compras totales, cuántas son a crédito" },
-                        usa_cartera: { type: "boolean", description: "¿Usará el módulo de cartera?" },
-                        usa_inventario: { type: "boolean", description: "¿Usará control de inventario?" },
-                        nomina: { type: "number", description: "Número de empleados" },
-                        usa_contabilidad: { type: "boolean", description: "¿Usará contabilidad?" }
+                        usa_contabilidad: { type: "boolean", description: "¿Usará el módulo contable?" },
+                        nomina: { type: "number", description: "OPCIONAL. Infiere según la industria, a menos que el usuario dé el dato exacto." },
+                        usa_cartera: { type: "boolean", description: "OPCIONAL. Asume true por defecto, a menos que el usuario diga que no la usará." },
+                        compras_credito: { type: "number", description: "OPCIONAL. Solo envíalo si el usuario especifica exactamente cuántas de sus compras son a crédito o si dice que son 0." }
                     },
-                    required: ["ventas", "compras_totales", "compras_credito", "usa_cartera", "usa_inventario", "nomina", "usa_contabilidad"]
+                    required: ["ventas", "compras_totales", "usa_contabilidad"] // <-- Solo estos 3 obligatorios
                 }
             }
         },
@@ -163,39 +171,55 @@ app.post('/api/chat', async (req, res) => {
             if (toolCall.function.name === "calcular_plan_dataico") {
                 const V = args.ventas || 0;
                 const C_tot = args.compras_totales || 0;
-                const C_cred = args.compras_credito || 0;
                 const E = args.nomina || 0;
 
-                const usaCartera = args.usa_cartera || false;
-                const usaInventario = args.usa_inventario || false;
+                // Si la IA no envía usa_cartera, asumimos true por defecto (para la primera iteración)
+                const usaCartera = args.usa_cartera !== undefined ? args.usa_cartera : true;
                 const usaContabilidad = args.usa_contabilidad || false;
 
-                const R = usaCartera ? (V + C_tot) : 0;
-                const I = usaInventario ? (V + C_tot) : 0;
-                let docsContables = usaContabilidad ? (V + C_tot + R + E) : 0;
-                const docsCompras = C_tot + (C_cred * 3);
+                // --- MAGIA DEL RECALCULO ---
+                // Si la IA envía compras_credito (ej. 0), usamos eso. Si no, asumimos el 50% de las totales.
+                const C_cred = args.compras_credito !== undefined ? args.compras_credito : Math.round(C_tot * 0.5);
+                const eventosDian = C_cred * 3;
+                const docsCompras = C_tot + eventosDian;
 
-                const totalMensual = V + docsCompras + R + I + E + docsContables;
+                // Cartera: Asumimos 50% de V+C si está activada
+                const R = usaCartera ? Math.round((V + C_tot) * 0.5) : 0;
+
+                // Contabilidad: Suma de todo si está activada
+                const docsContables = usaContabilidad ? (V + C_tot + R + E) : 0;
+
+                const totalMensual = V + docsCompras + R + E + docsContables;
                 const totalAnual = totalMensual * 12;
 
                 console.log("\n==========================================");
-                console.log("🧮 CALCULADORA ACTIVADA (LÓGICA INFERIDA)");
+                console.log("🧮 CALCULADORA ACTIVADA");
                 console.log(`- Ventas: ${V}`);
                 console.log(`- Compras Totales: ${C_tot}`);
-                console.log(`- Eventos DIAN (Crédito): ${C_cred * 3}`);
-                console.log(`- Cartera Inferida (Sí=${usaCartera}): ${R}`);
-                console.log(`- Inventario Inferido (Sí=${usaInventario}): ${I}`);
+                console.log(`- Compras a Crédito (Exactas o 50%): ${C_cred}`);
+                console.log(`- Eventos DIAN (Crédito x 3): ${eventosDian}`);
+                console.log(`- Cartera (Sí=${usaCartera}): ${R}`);
                 console.log(`- Nómina: ${E}`);
                 console.log(`- Contabilidad (Sí=${usaContabilidad}): ${docsContables}`);
-                console.log(`> TOTAL MENSUAL: ${totalMensual}`);
                 console.log(`> TOTAL ANUAL CALCULADO: ${totalAnual}`);
                 console.log("==========================================\n");
+
+                // TRUCO: Le mandamos a la IA un texto plano hiper-claro en lugar de JSON
+                const respuestaHerramienta = `CÁLCULO EXITOSO.
+                Mensual: ${totalMensual} | Anual: ${totalAnual}
+
+                === DESGLOSE EXACTO MENSUAL (USA ESTA MEMORIA SI EL USUARIO PIDE EXPLICACIÓN) ===
+                - Ventas: ${V}
+                - Compras y eventos DIAN: ${docsCompras}
+                - Empleados (Nómina): ${E}
+                - Gestión de Cartera inferida: ${R}
+                - Registros Contables inferidos: ${docsContables}`;
 
                 conversation.push({
                     role: "tool",
                     tool_call_id: toolCall.id,
                     name: toolCall.function.name,
-                    content: JSON.stringify({ docs_mensuales: totalMensual, docs_anuales: totalAnual })
+                    content: respuestaHerramienta
                 });
             }
             // CONDICIONAL 2: LLAMADA A N8N ORIGINAL
