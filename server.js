@@ -88,16 +88,15 @@ app.post('/api/chat', async (req, res) => {
         ━━━ EL FLUJO DE DESCUBRIMIENTO (2 PASOS) ━━━
         Debes seguir este orden ESTRICTAMENTE:
 
-        PASO 1 (Operación Base): Tras validar su industria (que te dio en el primer mensaje), responde empatizando con su sector y pregunta de forma natural: "¿Aproximadamente cuántas facturas de venta emites y cuántas de compra recibes al mes?". (Módulo: "QueEsUnDocumento").
+        PASO 1 (Operación Base): Tras validar su industria (que te dio en el primer mensaje), responde empatizando con su sector y pregunta de forma natural: "¿Aproximadamente cuántas facturas de venta emites y cuántas de compra recibes al mes?". (OBLIGATORIO: Módulo: "QueEsUnDocumento").
 
-        PASO 2 (Contabilidad): Cuando te dé esos datos, haz tu segunda y última validación: "¡Perfecto! Sabiendo que en Dataico el módulo ya viene incluido sin costo extra, ¿tú o tu contador usarán la plataforma para llevar la contabilidad?". (Módulo: "TodoIncluido").
+        PASO 2 (Contabilidad): Cuando te dé esos datos, haz tu segunda y última validación: "¡Perfecto! Sabiendo que en Dataico el módulo ya viene incluido sin costo extra, ¿tú o tu contador usarán la plataforma para llevar la contabilidad?". (OBLIGATORIO: Módulo: "TodoIncluido").
 
         PASO 3 (Cálculo Inteligente): Tras su respuesta sobre la contabilidad, llama a la herramienta 'calcular_plan_dataico' SILENCIOSAMENTE.
-        IMPORTANTE: Como no le preguntaste por nómina ni cartera, elije tú mismo los valores en la herramienta asumiendo lo más lógico para su industria (ej. una tienda seguramente tiene un par de empleados y usa cartera).
+        IMPORTANTE: Como no le preguntaste por nómina ni cartera, elije tú mismo los valores en la herramienta asumiendo lo más lógico para su industria (ej. una tienda seguramente tiene un par de empleados y usa cartera). (OBLIGATORIO: Módulo: "EvitaBloqueos")
 
         PASO 4 (El Cierre Transparente): Al recibir el resultado numérico de la calculadora, NO MENCIONES EL NOMBRE DEL PLAN. 
-        Estructura obligatoria (ADÁPTALA): "Teniendo como aproximados tus facturas de venta y compra, y [menciona si usa contabilidad], asumiendo el uso de nuestra cartera y eventos de recepción para tus compras, necesitarías un aproximado de [Anuales] documentos al año. Aquí abajo te dejo la capacidad ideal para que operes sin bloqueos a fin de mes. 👇"
-        (Módulo: "EvitaBloqueos").`
+        Estructura obligatoria (ADÁPTALA): "Teniendo como aproximados tus facturas de venta y compra, y [menciona si usa contabilidad], asumiendo el uso de nuestra cartera y eventos de recepción para tus compras, necesitarías un aproximado de [Anuales] documentos al año. Aquí abajo te dejo la capacidad ideal para que operes sin bloqueos a fin de mes. 👇".`
     };
 
     const tools = [

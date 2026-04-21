@@ -212,27 +212,35 @@ async function sendMessage(text) {
             updateBanner(parsedData.modulo);
         }
 
-        // 4. Mostramos el mensaje del bot en el chat (ARRIBA)
+        // 4. Mostramos el mensaje del bot en el chat
         if (parsedData.texto) {
             addMessage(parsedData.texto, true);
         }
 
-        // 5. ESCUDO DE TARJETAS Y BOTONES HARDCODEADOS (EN MEDIO Y ABAJO)
+        // 5. ESCUDO DE TARJETAS, BOTONES Y BANNER HARDCODEADOS
         if (parsedData.docs_anuales !== null && parsedData.docs_anuales !== undefined) {
             if (parsedData.docs_anuales !== lastRenderedDocs) {
-                // Renderiza las tarjetas
+                // 5.1 Pintamos las tarjetas de recomendación
                 renderFinalCards(parsedData.docs_anuales);
                 lastRenderedDocs = parsedData.docs_anuales;
 
-                // INYECCIÓN HARDCODEADA: Esperamos un instante y pintamos los botones abajo
+                // 5.2 FORZAMOS el banner lateral al de Cierre (Tu Plan Ideal)
+                updateBanner("Cierre");
+
+                // 5.3 Pintamos los botones abajo después de un instante
                 setTimeout(() => {
-                    renderQuickReplies(["Tengo otra duda", "¿Cómo adquiero este plan?"]);
+                    renderQuickReplies(["Tengo una duda sobre los planes", "¿Cómo adquiero este plan?"]);
                 }, 100);
             }
         }
-        // 6. Si NO hay tarjetas nuevas, mostramos las opciones normales que la IA haya mandado (si aplica)
-        else if (parsedData.opciones && Array.isArray(parsedData.opciones) && parsedData.opciones.length > 0) {
-            renderQuickReplies(parsedData.opciones);
+        // 6. Si NO hay tarjetas nuevas, actualizamos el banner con lo que mandó la IA
+        else {
+            if (parsedData.modulo) {
+                updateBanner(parsedData.modulo);
+            }
+            if (parsedData.opciones && Array.isArray(parsedData.opciones) && parsedData.opciones.length > 0) {
+                renderQuickReplies(parsedData.opciones);
+            }
         }
 
     } catch (e) {
